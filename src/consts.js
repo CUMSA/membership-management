@@ -1,1 +1,1 @@
-export const API_URL = "https://api.cumsa.org";
+export const API_URL = "https://api.cumsa.org/membership";
