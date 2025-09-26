@@ -4,7 +4,7 @@
 
 Original author: Glenda Teo (2023-24 Sports Secretary)
 
-Currently being maintained by Zeyu (2024-25 Database Officer)
+Currently being maintained by Xavier (2025-26 Database Officer)
 
 ## Page Overview
 
