@@ -62,7 +62,7 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
       <div>
         <CSVLink
           data={data
-            .filter((d) => d.MembershipType == "Life")
+            .filter((d) => d.MembershipType === "Life")
             .map((d) => ({
               Name: d.FirstName + " " + d.LastName,
               "Phone Number": d.UKMobile,
@@ -76,7 +76,7 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
           data={data
             .filter(
               (d) =>
-                d.MembershipType ==
+                d.MembershipType ===
                 `1 year (${currMembershipCycle}-${currMembershipCycle + 1})`
             )
             .map((d) => ({

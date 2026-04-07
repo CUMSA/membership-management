@@ -26,7 +26,7 @@ const CardIssueApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
             content: `Successfully set CardIssued for ${Crsid} to true`,
             severity: "success",
           });
-          setData(data.filter((d) => d.Crsid != Crsid));
+          setData(data.filter((d) => d.Crsid !== Crsid));
         })
         .catch((e) => {
           setToastSetting({

@@ -55,7 +55,7 @@ function PageNavigator({
                 setPage(i);
                 handleClose();
               }}
-              selected={i == page}
+              selected={i === page}
             >
               {e.name}
             </MenuItem>

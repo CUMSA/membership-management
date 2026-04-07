@@ -36,9 +36,9 @@ const HeaderRow = ({
               }}
             />
           );
-          if (c == "College") {
+          if (c === "College") {
             toRet = <CollegeDropDown setSearch={setSearch} search={search} />;
-          } else if (c == "Course") {
+          } else if (c === "Course") {
             toRet = <CourseDropDown setSearch={setSearch} search={search} />;
           }
           return (

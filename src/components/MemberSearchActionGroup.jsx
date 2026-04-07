@@ -30,7 +30,7 @@ const MemberSearchActionGroup = ({ memberFilter, validOnly, setMemberFilter, set
 
     const crsidDataProc = crsidArr.map((c) => {
       const entry = data.filter(
-        (d) => d.Crsid.toLowerCase() == c.toLowerCase()
+        (d) => d.Crsid.toLowerCase() === c.toLowerCase()
       );
       if (entry.length > 0) {
         const { Paid, Expired, CardIssued } = entry[0];

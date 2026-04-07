@@ -99,18 +99,18 @@ export default function DataTable({
             d.Course.toLowerCase().startsWith(search.Course.toLowerCase())
         )
         .filter((d) => {
-          if (memberFilter == "all") {
+          if (memberFilter === "all") {
             return true;
-          } else if (memberFilter == "current") {
+          } else if (memberFilter === "current") {
             return (
               d.GraduationYear > new Date().getFullYear() ||
-              (d.GraduationYear == new Date().getFullYear() &&
+              (d.GraduationYear === new Date().getFullYear() &&
                 new Date().getMonth() < 9)
             );
           } else {
             return (
               d.GraduationYear < new Date().getFullYear() ||
-              (d.GraduationYear == new Date().getFullYear() &&
+              (d.GraduationYear === new Date().getFullYear() &&
                 new Date().getMonth() >= 9)
             );
           }
@@ -275,7 +275,7 @@ export default function DataTable({
           </div>
         )}
         {/* Empty */}
-        {!isFiltering && !isLoading && dispData.length == 0 && (
+        {!isFiltering && !isLoading && dispData.length === 0 && (
           <div
             style={{
               width: "100%",
