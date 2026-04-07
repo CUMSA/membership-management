@@ -10,7 +10,7 @@ import { useAuthenticator } from "@aws-amplify/ui-react";
 const MemberSearch = ({ isLoading, setIsLoading, setToastSetting }) => {
   const { user } = useAuthenticator((context) => [context.user]);
   const [data, setData] = useState([]);
-  const [allCols, setAllCols] = useState([]);
+  const [, setAllCols] = useState([]);
   const [memberFilter, setMemberFilter] = useState("all");
   const [validOnly, setValidOnly] = useState(true);
 
@@ -55,7 +55,7 @@ const MemberSearch = ({ isLoading, setIsLoading, setToastSetting }) => {
           severity: "error",
         });
       });
-  }, []);
+  }, [setIsLoading, setToastSetting, user]);
 
   return (
     <div className="table-wrap">

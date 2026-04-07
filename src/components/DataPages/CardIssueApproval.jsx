@@ -78,7 +78,7 @@ const CardIssueApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
           severity: "error",
         });
       });
-  }, []);
+  }, [setIsLoading, setToastSetting, user]);
 
   return (
     <>
