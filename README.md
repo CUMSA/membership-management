@@ -2,9 +2,14 @@
 
 ## Contributors
 
-Original author: Glenda Teo (2023-24 Sports Secretary)
+Past maintainers:
 
-Currently being maintained by Xavier (2025-26 Database Officer)
+- Glenda Teo (2023-24 Sports Secretary) (Original Author)
+- Zeyu Zhang (2024-25 Database Officer)
+- Xavier Yeo (2025-26 Database Officer)
+- Ethan Kuai (2026-27 Database Officer)
+
+Currently being maintained by Ethan Kuai (2026-27 Database Officer)
 
 ## Page Overview
 
