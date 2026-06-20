@@ -1,17 +1,15 @@
-import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import scan from "../../dynamo/query";
+import useMemberData from "../../hooks/useMemberData";
 import DataTable from "../DataTable";
-import transform from "../../dynamo/transform";
 import { byDate } from "../../utils/sortFuncs";
 import MemberSearchActionGroup from "../MemberSearchActionGroup";
-import { useAuthenticator } from "@aws-amplify/ui-react";
 
-const MemberSearch = ({ isLoading, setIsLoading, setToastSetting }) => {
-  const { user } = useAuthenticator((context) => [context.user]);
-  const [data, setData] = useState([]);
-  const [, setAllCols] = useState([]);
+const memberQuery = {};
+
+const MemberSearch = () => {
+  const { data, isLoading, loadedAt } = useMemberData(memberQuery);
+
   const [memberFilter, setMemberFilter] = useState("all");
   const [validOnly, setValidOnly] = useState(true);
 
@@ -33,31 +31,6 @@ const MemberSearch = ({ isLoading, setIsLoading, setToastSetting }) => {
     "Expired",
   ];
 
-  useEffect(() => {
-    const token = user.getSignInUserSession().getIdToken().getJwtToken();
-    setIsLoading(true);
-    scan({}, token)
-      .then((r) => {
-        setIsLoading(false);
-        setData(transform(r));
-        setAllCols(
-          Object.keys(r[0]).map((k) => ({
-            field: k,
-            headerName: k,
-            width: 150,
-          })),
-        );
-      })
-      .catch(() => {
-        setIsLoading(false);
-        setToastSetting({
-          visible: true,
-          content: "Failed to fetch data. Try again later.",
-          severity: "error",
-        });
-      });
-  }, [setIsLoading, setToastSetting, user]);
-
   return (
     <div className="table-wrap">
       <MemberSearchActionGroup
@@ -71,6 +44,7 @@ const MemberSearch = ({ isLoading, setIsLoading, setToastSetting }) => {
         handleToggle={() => {}}
         rows={data}
         isLoading={isLoading}
+        hasLoaded={Boolean(loadedAt)}
         filterCols={columns}
         sortF={byDate(1)}
         searchCol={[
@@ -88,12 +62,6 @@ const MemberSearch = ({ isLoading, setIsLoading, setToastSetting }) => {
       />
     </div>
   );
-};
-
-MemberSearch.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
-  setIsLoading: PropTypes.func.isRequired,
-  setToastSetting: PropTypes.func.isRequired,
 };
 
 export default MemberSearch;
