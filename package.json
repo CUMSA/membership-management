@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "https://membershipadmin.cumsa.org",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "format": "prettier --check \"**/*.{js,jsx,mdx,json,css}\" --cache",
+    "format:fix": "prettier --write \"**/*.{js,jsx,mdx,json,css}\" --cache",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix"
+  },
   "dependencies": {
     "@aws-amplify/ui-react": "^5.3.1",
     "@emotion/react": "^11.11.1",
@@ -22,17 +32,16 @@
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "devDependencies": {
+    "@eslint/eslintrc": "3.3.1",
+    "@eslint/js": "9.39.5",
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.5",
+    "eslint-plugin-jsx-a11y": "6.10.2",
+    "eslint-plugin-react": "7.37.5",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.12.0",
+    "prettier": "3.5.3"
   },
   "browserslist": {
     "production": [
