@@ -41,6 +41,10 @@ export default defineConfig(
     rules: {
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "error",
+      "no-unused-vars": [
+        "error",
+        { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
+      ],
     },
   },
   ...compat.extends("plugin:jsx-a11y/recommended"),
