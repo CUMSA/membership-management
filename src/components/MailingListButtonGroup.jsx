@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
 import update from "../dynamo/update";
@@ -84,6 +85,12 @@ const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
       </button>
     </div>
   );
+};
+
+MailingListButtonGroup.propTypes = {
+  data: PropTypes.array.isRequired,
+  setToastSetting: PropTypes.func.isRequired,
+  setData: PropTypes.func.isRequired,
 };
 
 export default MailingListButtonGroup;

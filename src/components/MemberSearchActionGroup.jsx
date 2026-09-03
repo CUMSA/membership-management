@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useState } from "react";
 import MemberAgeDropDown from "./MemberAgeDropDown";
 
@@ -128,6 +129,14 @@ const MemberSearchActionGroup = ({
       </Modal>
     </div>
   );
+};
+
+MemberSearchActionGroup.propTypes = {
+  memberFilter: PropTypes.string.isRequired,
+  validOnly: PropTypes.bool,
+  setMemberFilter: PropTypes.func.isRequired,
+  setValidOnly: PropTypes.func.isRequired,
+  data: PropTypes.array.isRequired,
 };
 
 export default MemberSearchActionGroup;

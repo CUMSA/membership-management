@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 
@@ -52,3 +53,8 @@ export default function CollegeDropDown({ search, setSearch }) {
     </Select>
   );
 }
+
+CollegeDropDown.propTypes = {
+  search: PropTypes.shape({ College: PropTypes.string }).isRequired,
+  setSearch: PropTypes.func.isRequired,
+};

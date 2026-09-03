@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { CSVLink } from "react-csv";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
@@ -93,6 +94,12 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
       </button>
     </div>
   );
+};
+
+CardIssueButtonGroup.propTypes = {
+  data: PropTypes.array.isRequired,
+  setToastSetting: PropTypes.func.isRequired,
+  setData: PropTypes.func.isRequired,
 };
 
 export default CardIssueButtonGroup;

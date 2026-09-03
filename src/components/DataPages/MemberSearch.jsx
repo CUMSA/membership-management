@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 
 import scan from "../../dynamo/query";
@@ -87,6 +88,12 @@ const MemberSearch = ({ isLoading, setIsLoading, setToastSetting }) => {
       />
     </div>
   );
+};
+
+MemberSearch.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
+  setIsLoading: PropTypes.func.isRequired,
+  setToastSetting: PropTypes.func.isRequired,
 };
 
 export default MemberSearch;

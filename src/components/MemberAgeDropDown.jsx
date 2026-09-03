@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 
@@ -21,3 +22,8 @@ export default function MemberAgeDropDown({ memberFilter, setMemberFilter }) {
     </Select>
   );
 }
+
+MemberAgeDropDown.propTypes = {
+  memberFilter: PropTypes.string.isRequired,
+  setMemberFilter: PropTypes.func.isRequired,
+};

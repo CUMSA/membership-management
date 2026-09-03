@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import coursemap from "./coursemapping.json";
@@ -16,9 +17,16 @@ export default function CourseDropDown({ search, setSearch }) {
       fullWidth
     >
       {Object.keys(coursemap).map((k) => (
-        <MenuItem value={coursemap[k]}>{coursemap[k]}</MenuItem>
+        <MenuItem key={k} value={coursemap[k]}>
+          {coursemap[k]}
+        </MenuItem>
       ))}
       <MenuItem value="">None</MenuItem>
     </Select>
   );
 }
+
+CourseDropDown.propTypes = {
+  search: PropTypes.shape({ Course: PropTypes.string }).isRequired,
+  setSearch: PropTypes.func.isRequired,
+};
