@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { Dropdown } from "@mui/base/Dropdown";
 import { Menu } from "@mui/base/Menu";
 import { MenuButton } from "@mui/base/MenuButton";
@@ -24,6 +25,13 @@ export default function ToggleDropdown({ attr, currVal, Crsid, handleToggle }) {
     </Dropdown>
   );
 }
+
+ToggleDropdown.propTypes = {
+  attr: PropTypes.string.isRequired,
+  currVal: PropTypes.bool.isRequired,
+  Crsid: PropTypes.string.isRequired,
+  handleToggle: PropTypes.func.isRequired,
+};
 
 const blue = {
   50: "#F0F7FF",

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 
 import Table from "@mui/material/Table";
@@ -234,8 +235,8 @@ export default function DataTable({
                   else if (data.Paid && data.CardIssued && !data.Expired)
                     badgeCard = <div className="badge valid">Valid</div>;
 
-                  return (
-                    <>
+                      return (
+                    <div key={data.Crsid}>
                       {memberBadge && (
                         <div className="badgeContainer">{badgeCard}</div>
                       )}
@@ -244,7 +245,7 @@ export default function DataTable({
                         {/* Toggle */}
                         {toggleCols &&
                           toggleCols.map((c) => (
-                            <TableCell>
+                            <TableCell key={c}>
                               <ToggleDropdown
                                 currVal={data[c]}
                                 attr={c}
@@ -258,10 +259,10 @@ export default function DataTable({
                         {filterCols
                           .filter((x) => !toggleCols || !toggleCols.includes(x))
                           .map((c) => (
-                            <TableCell>{`${data[c]}`}</TableCell>
+                            <TableCell key={c}>{`${data[c]}`}</TableCell>
                           ))}
                       </TableRow>
-                    </>
+                    </div>
                   );
                 })}
 
@@ -337,3 +338,16 @@ export default function DataTable({
     </div>
   );
 }
+
+DataTable.propTypes = {
+  rows: PropTypes.array.isRequired,
+  filterCols: PropTypes.array.isRequired,
+  toggleCols: PropTypes.array,
+  handleToggle: PropTypes.func.isRequired,
+  searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string]).isRequired,
+  sortF: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  memberFilter: PropTypes.string,
+  memberBadge: PropTypes.bool,
+  validOnly: PropTypes.bool,
+};

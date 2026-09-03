@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
@@ -84,6 +85,12 @@ const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
       </div>
     </>
   );
+};
+
+MailingListAdding.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
+  setIsLoading: PropTypes.func.isRequired,
+  setToastSetting: PropTypes.func.isRequired,
 };
 
 export default MailingListAdding;
