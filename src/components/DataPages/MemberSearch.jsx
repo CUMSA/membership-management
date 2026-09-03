@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import scan from "../../dynamo/query";
 import DataTable from "../DataTable";
@@ -30,7 +30,7 @@ const MemberSearch = ({ isLoading, setIsLoading, setToastSetting }) => {
     "Paid",
     "CardIssued",
     "Expired",
-  ]
+  ];
 
   useEffect(() => {
     const token = user.getSignInUserSession().getIdToken().getJwtToken();
@@ -44,10 +44,10 @@ const MemberSearch = ({ isLoading, setIsLoading, setToastSetting }) => {
             field: k,
             headerName: k,
             width: 150,
-          }))
+          })),
         );
       })
-      .catch((e) => {
+      .catch(() => {
         setIsLoading(false);
         setToastSetting({
           visible: true,
@@ -67,12 +67,20 @@ const MemberSearch = ({ isLoading, setIsLoading, setToastSetting }) => {
         data={data}
       />
       <DataTable
-        handleToggle={() => { }}
+        handleToggle={() => {}}
         rows={data}
         isLoading={isLoading}
         filterCols={columns}
         sortF={byDate(1)}
-        searchCol={["Crsid", "FirstName", "LastName", "Course", "College", "Scholarship", "Nationality"]}
+        searchCol={[
+          "Crsid",
+          "FirstName",
+          "LastName",
+          "Course",
+          "College",
+          "Scholarship",
+          "Nationality",
+        ]}
         memberFilter={memberFilter}
         validOnly={validOnly}
         memberBadge={true}

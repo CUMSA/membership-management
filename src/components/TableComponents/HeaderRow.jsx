@@ -1,6 +1,4 @@
-import React from "react";
 import TableCell from "@mui/material/TableCell";
-
 import TableRow from "@mui/material/TableRow";
 import { Input } from "@mui/material";
 import CollegeDropDown from "./CollegeDropDown";

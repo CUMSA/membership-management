@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
 import scan from "../../dynamo/query";
@@ -31,7 +31,7 @@ const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
         FilterExpression:
           "Paid = :p and CardIssued = :c and InMailingList = :m",
       },
-      token
+      token,
     )
       .then((r) => {
         setIsLoading(false);
@@ -42,11 +42,11 @@ const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
               field: k,
               headerName: k,
               width: 150,
-            }))
+            })),
           );
         }
       })
-      .catch((e) => {
+      .catch(() => {
         setIsLoading(false);
         setToastSetting({
           visible: true,

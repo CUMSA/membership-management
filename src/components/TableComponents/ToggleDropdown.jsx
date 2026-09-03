@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Dropdown } from "@mui/base/Dropdown";
 import { Menu } from "@mui/base/Menu";
 import { MenuButton } from "@mui/base/MenuButton";
@@ -16,10 +15,10 @@ export default function ToggleDropdown({ attr, currVal, Crsid, handleToggle }) {
           }}
           currVal={currVal}
         >
-          <p class="action">
-            Set "{attr}" to {`${!currVal}`}
+          <p className="action">
+            Set `{attr}` to {`${!currVal}`}
           </p>
-          <p class="subtitle">This action cannot be undone.</p>
+          <p className="subtitle">This action cannot be undone.</p>
         </StyledMenuItem>
       </Menu>
     </Dropdown>
@@ -67,7 +66,7 @@ const StyledListbox = styled("ul")(
     theme.palette.mode === "dark" ? grey[900] : grey[200]
   };
   z-index: 1;
-  `
+  `,
 );
 
 const StyledMenuItem = styled(MenuItem)(
@@ -103,7 +102,7 @@ const StyledMenuItem = styled(MenuItem)(
     font-size: 0.8em;
     margin-top: 0;
    }
-  `
+  `,
 );
 
 const TriggerButton = styled(MenuButton)(
@@ -135,5 +134,5 @@ const TriggerButton = styled(MenuButton)(
     border-color: ${blue[400]};
     outline: 3px solid ${theme.palette.mode === "dark" ? blue[500] : blue[200]};
   }
-`
+`,
 );

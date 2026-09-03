@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
 import scan from "../../dynamo/query";
@@ -19,7 +19,7 @@ const CardIssueApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
     const token = user.getSignInUserSession().getIdToken().getJwtToken();
     if (newVal === true) {
       return update({ Crsid, Action: "ConfirmCardIssue" }, token)
-        .then((r) => {
+        .then(() => {
           setToastSetting({
             visible: true,
             content: `Successfully set CardIssued for ${Crsid} to true`,
@@ -27,7 +27,7 @@ const CardIssueApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
           });
           setData(data.filter((d) => d.Crsid != Crsid));
         })
-        .catch((e) => {
+        .catch(() => {
           setToastSetting({
             visible: true,
             content: "Failed to set CardIssued to true. Try again later.",
@@ -52,7 +52,7 @@ const CardIssueApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
         },
         FilterExpression: "Paid = :p and CardIssued = :c",
       },
-      token
+      token,
     )
       .then((r) => {
         setIsLoading(false);
@@ -64,11 +64,11 @@ const CardIssueApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
               field: k,
               headerName: k,
               width: 150,
-            }))
+            })),
           );
         }
       })
-      .catch((e) => {
+      .catch(() => {
         setIsLoading(false);
         setToastSetting({
           visible: true,
