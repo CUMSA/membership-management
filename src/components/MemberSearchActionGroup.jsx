@@ -34,7 +34,6 @@ const MemberSearchActionGroup = ({ memberFilter, validOnly, setMemberFilter, set
       );
       if (entry.length > 0) {
         const { Paid, Expired, CardIssued } = entry[0];
-        console.log(entry, Paid, Expired, CardIssued);
         return {
           Crsid: c,
           InDatabase: true,

@@ -20,11 +20,9 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
       )
     ) {
       const token = user.getSignInUserSession().getIdToken().getJwtToken();
-      console.log(user, token);
 
       return Promise.all(
         data.map((d) => {
-          console.log(d);
           return update(
             {
               Action: "ConfirmCardIssue",

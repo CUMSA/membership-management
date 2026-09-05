@@ -2,7 +2,6 @@ import axios from "axios";
 import { API_URL } from "../consts";
 
 const scan = (data, auth) => {
-  console.log(auth);
   return axios
     .post(`${API_URL}/cumsa-registrant-scan`, data, {
       headers: {

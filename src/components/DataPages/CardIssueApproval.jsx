@@ -17,7 +17,6 @@ const CardIssueApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
 
   const handleSetQPayTrue = (newVal, Crsid) => {
     const token = user.getSignInUserSession().getIdToken().getJwtToken();
-    console.log("toktoktok: " + token);
     if (newVal === true) {
       return update({ Crsid, Action: "ConfirmCardIssue" }, token)
         .then((r) => {
@@ -40,7 +39,6 @@ const CardIssueApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
 
   useEffect(() => {
     const token = user.getSignInUserSession().getIdToken().getJwtToken();
-    console.log(user, token);
     setIsLoading(true);
     scan(
       {
