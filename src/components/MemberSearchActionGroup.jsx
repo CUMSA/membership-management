@@ -26,19 +26,19 @@ const MemberSearchActionGroup = ({
     setOpen(false);
   };
 
-  const handleCheck = (event, done) => {
-    const crsidArr = crsids.split("\n").map((c) => {
-      if (c.includes("@cam.ac.uk")) {
-        return c.split("@")[0];
-      } else {
-        return c;
-      }
-    });
+  const parseCrsids = () =>
+    crsids
+      .split("\n")
+      .map((c) => c.trim())
+      .filter(Boolean)
+      .map((c) => (c.includes("@cam.ac.uk") ? c.split("@")[0] : c));
 
-    const crsidDataProc = crsidArr.map((c) => {
-      const entry = data.filter(
-        (d) => d.Crsid.toLowerCase() == c.toLowerCase(),
-      );
+  const findEntry = (c) =>
+    data.filter((d) => d.Crsid.toLowerCase() == c.toLowerCase());
+
+  const handleCheck = (event, done) => {
+    const crsidDataProc = parseCrsids().map((c) => {
+      const entry = findEntry(c);
       if (entry.length > 0) {
         const { Paid, Expired, CardIssued } = entry[0];
         return {
