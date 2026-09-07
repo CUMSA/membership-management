@@ -14,7 +14,6 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
 
   const handleSetPayTrue = (newVal, Crsid) => {
     const token = user.getSignInUserSession().getIdToken().getJwtToken();
-    console.log(token);
 
     if (newVal === true) {
       return update({ Crsid, Action: "ConfirmPayment" }, token)

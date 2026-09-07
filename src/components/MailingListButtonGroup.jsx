@@ -40,7 +40,6 @@ const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
     ) {
       return Promise.all(
         data.map((d) => {
-          console.log(d);
           return update(
             {
               Action: "AddToMailingList",
