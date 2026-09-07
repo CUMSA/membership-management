@@ -4,7 +4,6 @@ import { useAuthenticator } from "@aws-amplify/ui-react";
 import scan from "../../dynamo/query";
 import DataTable from "../DataTable";
 import transform from "../../dynamo/transform";
-import update from "../../dynamo/update";
 import { byDate } from "../../utils/sortFuncs";
 import MailingListButtonGroup from "../MailingListButtonGroup";
 
@@ -55,7 +54,7 @@ const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
           severity: "error",
         });
       });
-  }, []);
+  }, [setIsLoading, setToastSetting, user]);
 
   return (
     <>

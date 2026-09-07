@@ -58,7 +58,7 @@ export default function DataTable({
 
   const [selectedAttribute, setSelectedAttribute] = useState("MembershipType");
   const [countsByAttribute, setCountsByAttribute] = useState({}); // { attribute: count }
-  const [tableData, setTableData] = useState([]);
+  // const [tableData, setTableData] = useState([]);
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -75,7 +75,7 @@ export default function DataTable({
 
   useEffect(() => {
     setDispData(rows.sort(sortF));
-  }, [rows]);
+  }, [rows, sortF]);
 
   useEffect(() => {
     const f = async () => {
@@ -135,7 +135,7 @@ export default function DataTable({
       setCountsByAttribute(counts);
     };
     f();
-  }, [search, memberFilter, validOnly, selectedAttribute]);
+  }, [rows, sortF, search, memberFilter, validOnly, selectedAttribute]);
 
   useEffect(() => {
     setIsFiltering(false);
