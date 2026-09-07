@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
 import update from "../dynamo/update";
@@ -19,8 +19,8 @@ const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
       .map(
         (d) =>
           `${d.Crsid}@cam.ac.uk ${nameUpper(d.FirstName)} ${nameUpper(
-            d.LastName
-          )}`
+            d.LastName,
+          )}`,
       )
       .join("\n");
 
@@ -35,7 +35,7 @@ const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
     const token = user.getSignInUserSession().getIdToken().getJwtToken();
     if (
       window.confirm(
-        "You are about to mark ALL entries as in the mailing list. This is a dangerous operation that cannot be undone. Are you sure you want to continue?"
+        "You are about to mark ALL entries as in the mailing list. This is a dangerous operation that cannot be undone. Are you sure you want to continue?",
       )
     ) {
       return Promise.all(
@@ -45,11 +45,11 @@ const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
               Action: "AddToMailingList",
               Crsid: d.Crsid,
             },
-            token
+            token,
           );
-        })
+        }),
       )
-        .then((r) => {
+        .then(() => {
           setToastSetting({
             visible: true,
             content: `Successfully set InMailingList for all users to True`,
@@ -57,7 +57,7 @@ const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
           });
           setData([]);
         })
-        .catch((e) => {
+        .catch(() => {
           setToastSetting({
             visible: true,
             content: "Failed to set InMailingList to true. Try again later.",
@@ -85,6 +85,12 @@ const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
       </button>
     </div>
   );
+};
+
+MailingListButtonGroup.propTypes = {
+  data: PropTypes.array.isRequired,
+  setToastSetting: PropTypes.func.isRequired,
+  setData: PropTypes.func.isRequired,
 };
 
 export default MailingListButtonGroup;

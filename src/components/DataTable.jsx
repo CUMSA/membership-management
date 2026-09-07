@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 
 import Table from "@mui/material/Table";
@@ -86,17 +87,19 @@ export default function DataTable({
         .filter(
           (d) =>
             !search.FirstName ||
-            d.FirstName.toLowerCase().startsWith(search.FirstName.toLowerCase())
+            d.FirstName.toLowerCase().startsWith(
+              search.FirstName.toLowerCase(),
+            ),
         )
         .filter(
           (d) =>
             !search.LastName ||
-            d.LastName.toLowerCase().startsWith(search.LastName.toLowerCase())
+            d.LastName.toLowerCase().startsWith(search.LastName.toLowerCase()),
         )
         .filter(
           (d) =>
             !search.Course ||
-            d.Course.toLowerCase().startsWith(search.Course.toLowerCase())
+            d.Course.toLowerCase().startsWith(search.Course.toLowerCase()),
         )
         .filter((d) => {
           if (memberFilter == "all") {
@@ -115,9 +118,24 @@ export default function DataTable({
             );
           }
         })
-        .filter((d) => !search.Scholarship || d.Scholarship.toLowerCase().startsWith(search.Scholarship.toLowerCase()))
-        .filter((d) => !search.Nationality || d.Nationality.toLowerCase().startsWith(search.Nationality.toLowerCase()))
-        .filter((data) => !validOnly || (data.Paid && data.CardIssued && !data.Expired))  // Filter valid members
+        .filter(
+          (d) =>
+            !search.Scholarship ||
+            d.Scholarship.toLowerCase().startsWith(
+              search.Scholarship.toLowerCase(),
+            ),
+        )
+        .filter(
+          (d) =>
+            !search.Nationality ||
+            d.Nationality.toLowerCase().startsWith(
+              search.Nationality.toLowerCase(),
+            ),
+        )
+        .filter(
+          (data) =>
+            !validOnly || (data.Paid && data.CardIssued && !data.Expired),
+        ) // Filter valid members
         .sort(sortF);
       setDispData(d);
 
@@ -142,48 +160,47 @@ export default function DataTable({
   }, [dispData]);
 
   return (
-    <div style={{ height: 400, width: "100%" }}><div style={{ marginBottom: "20px" }}>
-      <h2>
-        Breakdown By Attribute
-      </h2>
-      <Select onChange={
-        (e) => {
-          setSelectedAttribute(e.target.value);
-        }
-      } placeholder="Select an attribute" value={selectedAttribute}>
-        {
-          filterCols.map((col) => (
-            <MenuItem key={col} value={col}>{col}</MenuItem>
-          ))
-        }
-      </Select>
+    <div style={{ height: 400, width: "100%" }}>
+      <div style={{ marginBottom: "20px" }}>
+        <h2>Breakdown By Attribute</h2>
+        <Select
+          onChange={(e) => {
+            setSelectedAttribute(e.target.value);
+          }}
+          placeholder="Select an attribute"
+          value={selectedAttribute}
+        >
+          {filterCols.map((col) => (
+            <MenuItem key={col} value={col}>
+              {col}
+            </MenuItem>
+          ))}
+        </Select>
 
-      {selectedAttribute && (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>
-                {selectedAttribute}
-              </TableCell>
-              <TableCell>Count</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {
-              // sort by descending counts
-              Object.keys(countsByAttribute)
-                .sort((a, b) => countsByAttribute[b] - countsByAttribute[a])
-                .map((attr) => (
-                  <TableRow key={attr}>
-                    <TableCell>{attr}</TableCell>
-                    <TableCell>{countsByAttribute[attr]}</TableCell>
-                  </TableRow>
-                ))
-            }
-          </TableBody>
-        </Table>
-      )}
-    </div>
+        {selectedAttribute && (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>{selectedAttribute}</TableCell>
+                <TableCell>Count</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {
+                // sort by descending counts
+                Object.keys(countsByAttribute)
+                  .sort((a, b) => countsByAttribute[b] - countsByAttribute[a])
+                  .map((attr) => (
+                    <TableRow key={attr}>
+                      <TableCell>{attr}</TableCell>
+                      <TableCell>{countsByAttribute[attr]}</TableCell>
+                    </TableRow>
+                  ))
+              }
+            </TableBody>
+          </Table>
+        )}
+      </div>
       <TableContainer component={Paper}>
         <Table
           sx={{ minWidth: 500 }}
@@ -208,40 +225,45 @@ export default function DataTable({
                   let badgeCard;
 
                   if (!data.Paid)
-                    badgeCard = (<div className="badge paid">Not Paid</div>);
+                    badgeCard = <div className="badge paid">Not Paid</div>;
                   else if (!data.CardIssued && data.Paid)
-                    badgeCard = (<div className="badge card">Card Not Issued</div>);
+                    badgeCard = (
+                      <div className="badge card">Card Not Issued</div>
+                    );
                   else if (data.Expired)
-                    badgeCard = (<div className="badge expire">Expired</div>);
+                    badgeCard = <div className="badge expire">Expired</div>;
                   else if (data.Paid && data.CardIssued && !data.Expired)
-                    badgeCard = (<div className="badge valid">Valid</div>);
+                    badgeCard = <div className="badge valid">Valid</div>;
 
-                  return <>
-                    {memberBadge && <div className="badgeContainer">
-                      {badgeCard}
-                    </div>}
+                      return (
+                    <div key={data.Crsid}>
+                      {memberBadge && (
+                        <div className="badgeContainer">{badgeCard}</div>
+                      )}
 
-                    <TableRow key={data.Crsid}>
-                      {/* Toggle */}
-                      {toggleCols &&
-                        toggleCols.map((c) => (
-                          <TableCell>
-                            <ToggleDropdown
-                              currVal={data[c]}
-                              attr={c}
-                              Crsid={data.Crsid}
-                              handleToggle={handleToggle}
-                            />
-                          </TableCell>
-                        ))}
+                      <TableRow key={data.Crsid}>
+                        {/* Toggle */}
+                        {toggleCols &&
+                          toggleCols.map((c) => (
+                            <TableCell key={c}>
+                              <ToggleDropdown
+                                currVal={data[c]}
+                                attr={c}
+                                Crsid={data.Crsid}
+                                handleToggle={handleToggle}
+                              />
+                            </TableCell>
+                          ))}
 
-                      {/* Columns to see */}
-                      {filterCols
-                        .filter((x) => !toggleCols || !toggleCols.includes(x))
-                        .map((c) => (
-                          <TableCell>{`${data[c]}`}</TableCell>
-                        ))}
-                    </TableRow></>
+                        {/* Columns to see */}
+                        {filterCols
+                          .filter((x) => !toggleCols || !toggleCols.includes(x))
+                          .map((c) => (
+                            <TableCell key={c}>{`${data[c]}`}</TableCell>
+                          ))}
+                      </TableRow>
+                    </div>
+                  );
                 })}
 
             {emptyRows > 0 && (
@@ -249,7 +271,7 @@ export default function DataTable({
                 <TableCell colSpan={6} />
               </TableRow>
             )}
-          </TableBody >
+          </TableBody>
         </Table>
 
         {/* Loading */}
@@ -316,3 +338,16 @@ export default function DataTable({
     </div>
   );
 }
+
+DataTable.propTypes = {
+  rows: PropTypes.array.isRequired,
+  filterCols: PropTypes.array.isRequired,
+  toggleCols: PropTypes.array,
+  handleToggle: PropTypes.func.isRequired,
+  searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string]).isRequired,
+  sortF: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired,
+  memberFilter: PropTypes.string,
+  memberBadge: PropTypes.bool,
+  validOnly: PropTypes.bool,
+};

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { useState } from "react";
 import MemberAgeDropDown from "./MemberAgeDropDown";
 
 import Typography from "@mui/material/Typography";
@@ -7,7 +8,13 @@ import { CSVLink } from "react-csv";
 import CloseIcon from "@mui/icons-material/Close";
 import { FormGroup, FormControlLabel, Switch } from "@mui/material";
 
-const MemberSearchActionGroup = ({ memberFilter, validOnly, setMemberFilter, setValidOnly, data }) => {
+const MemberSearchActionGroup = ({
+  memberFilter,
+  validOnly: _validOnly,
+  setMemberFilter,
+  setValidOnly,
+  data,
+}) => {
   const [open, setOpen] = useState(false);
   const [crsids, setCrsids] = useState("");
   const [crsidData, setCrsidData] = useState([{}]);
@@ -30,7 +37,7 @@ const MemberSearchActionGroup = ({ memberFilter, validOnly, setMemberFilter, set
 
     const crsidDataProc = crsidArr.map((c) => {
       const entry = data.filter(
-        (d) => d.Crsid.toLowerCase() == c.toLowerCase()
+        (d) => d.Crsid.toLowerCase() == c.toLowerCase(),
       );
       if (entry.length > 0) {
         const { Paid, Expired, CardIssued } = entry[0];
@@ -66,9 +73,9 @@ const MemberSearchActionGroup = ({ memberFilter, validOnly, setMemberFilter, set
       />
 
       <FormGroup>
-        <FormControlLabel 
-          control={<Switch defaultChecked />} 
-          label="Show Valid Members Only" 
+        <FormControlLabel
+          control={<Switch defaultChecked />}
+          label="Show Valid Members Only"
           onChange={(e) => {
             setValidOnly(e.target.checked);
           }}
@@ -82,7 +89,7 @@ const MemberSearchActionGroup = ({ memberFilter, validOnly, setMemberFilter, set
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <div class="modal">
+        <div className="modal">
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Put in Crsids to check
           </Typography>
@@ -122,6 +129,14 @@ const MemberSearchActionGroup = ({ memberFilter, validOnly, setMemberFilter, set
       </Modal>
     </div>
   );
+};
+
+MemberSearchActionGroup.propTypes = {
+  memberFilter: PropTypes.string.isRequired,
+  validOnly: PropTypes.bool,
+  setMemberFilter: PropTypes.func.isRequired,
+  setValidOnly: PropTypes.func.isRequired,
+  data: PropTypes.array.isRequired,
 };
 
 export default MemberSearchActionGroup;

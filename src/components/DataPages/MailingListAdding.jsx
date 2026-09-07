@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
 import scan from "../../dynamo/query";
@@ -31,7 +32,7 @@ const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
         FilterExpression:
           "Paid = :p and CardIssued = :c and InMailingList = :m",
       },
-      token
+      token,
     )
       .then((r) => {
         setIsLoading(false);
@@ -42,11 +43,11 @@ const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
               field: k,
               headerName: k,
               width: 150,
-            }))
+            })),
           );
         }
       })
-      .catch((e) => {
+      .catch(() => {
         setIsLoading(false);
         setToastSetting({
           visible: true,
@@ -84,6 +85,12 @@ const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
       </div>
     </>
   );
+};
+
+MailingListAdding.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
+  setIsLoading: PropTypes.func.isRequired,
+  setToastSetting: PropTypes.func.isRequired,
 };
 
 export default MailingListAdding;

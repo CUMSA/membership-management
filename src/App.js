@@ -85,7 +85,7 @@ function App() {
         hideSignUp={true}
         components={components}
       >
-        {({ signOut, user }) => (
+        {({ signOut }) => (
           <>
             <div className="content-container">
               <Snackbar

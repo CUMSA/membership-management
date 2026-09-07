@@ -1,5 +1,4 @@
-import React from "react";
-
+import PropTypes from "prop-types";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -51,6 +50,7 @@ function PageNavigator({
         {pageMap.map((e, i) => {
           return (
             <MenuItem
+              key={i}
               onClick={() => {
                 setPage(i);
                 handleClose();
@@ -65,5 +65,16 @@ function PageNavigator({
     </div>
   );
 }
+
+PageNavigator.propTypes = {
+  open: PropTypes.bool.isRequired,
+  handleClick: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  signOut: PropTypes.func.isRequired,
+  pageMenuVisible: PropTypes.object,
+  handleClose: PropTypes.func.isRequired,
+  setPage: PropTypes.func.isRequired,
+  pageMap: PropTypes.array.isRequired,
+};
 
 export default PageNavigator;

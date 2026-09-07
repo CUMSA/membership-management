@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
 import scan from "../../dynamo/query";
@@ -17,7 +18,7 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
 
     if (newVal === true) {
       return update({ Crsid, Action: "ConfirmPayment" }, token)
-        .then((r) => {
+        .then(() => {
           setToastSetting({
             visible: true,
             content: `Successfully set Paid for ${Crsid} to true`,
@@ -25,7 +26,7 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
           });
           setData(data.filter((d) => d.Crsid != Crsid));
         })
-        .catch((e) => {
+        .catch(() => {
           setToastSetting({
             visible: true,
             content: "Failed to set Paid to true. Try again later.",
@@ -47,7 +48,7 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
         },
         FilterExpression: "Paid = :p",
       },
-      token
+      token,
     )
       .then((r) => {
         setData(transform(r));
@@ -58,11 +59,11 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
               field: k,
               headerName: k,
               width: 150,
-            }))
+            })),
           );
         }
       })
-      .catch((e) => {
+      .catch(() => {
         setIsLoading(false);
         setToastSetting({
           visible: true,
@@ -95,6 +96,12 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
       </div>
     </>
   );
+};
+
+PaymentApproval.propTypes = {
+  isLoading: PropTypes.bool.isRequired,
+  setIsLoading: PropTypes.func.isRequired,
+  setToastSetting: PropTypes.func.isRequired,
 };
 
 export default PaymentApproval;

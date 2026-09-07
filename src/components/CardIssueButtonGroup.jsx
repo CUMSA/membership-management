@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 import { CSVLink } from "react-csv";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
@@ -16,7 +16,7 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
   const handleMarkAll = () => {
     if (
       window.confirm(
-        "You are about to mark ALL of entries as issued. This is a dangerous operation that cannot be undone. Are you sure you want to continue?"
+        "You are about to mark ALL of entries as issued. This is a dangerous operation that cannot be undone. Are you sure you want to continue?",
       )
     ) {
       const token = user.getSignInUserSession().getIdToken().getJwtToken();
@@ -28,11 +28,11 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
               Action: "ConfirmCardIssue",
               Crsid: d.Crsid,
             },
-            token
+            token,
           );
-        })
+        }),
       )
-        .then((r) => {
+        .then(() => {
           setToastSetting({
             visible: true,
             content: `Successfully set CardIssued for all users to True`,
@@ -40,7 +40,7 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
           });
           setData([]);
         })
-        .catch((e) => {
+        .catch(() => {
           setToastSetting({
             visible: true,
             content: "Failed to set CardIssued to true. Try again later.",
@@ -75,7 +75,7 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
             .filter(
               (d) =>
                 d.MembershipType ==
-                `1 year (${currMembershipCycle}-${currMembershipCycle + 1})`
+                `1 year (${currMembershipCycle}-${currMembershipCycle + 1})`,
             )
             .map((d) => ({
               Name: d.FirstName + " " + d.LastName,
@@ -94,6 +94,12 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
       </button>
     </div>
   );
+};
+
+CardIssueButtonGroup.propTypes = {
+  data: PropTypes.array.isRequired,
+  setToastSetting: PropTypes.func.isRequired,
+  setData: PropTypes.func.isRequired,
 };
 
 export default CardIssueButtonGroup;

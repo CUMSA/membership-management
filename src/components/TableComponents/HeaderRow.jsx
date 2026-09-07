@@ -1,6 +1,5 @@
-import React from "react";
+import PropTypes from "prop-types";
 import TableCell from "@mui/material/TableCell";
-
 import TableRow from "@mui/material/TableRow";
 import { Input } from "@mui/material";
 import CollegeDropDown from "./CollegeDropDown";
@@ -17,7 +16,7 @@ const HeaderRow = ({
   return (
     <TableRow>
       {toggleCols &&
-        toggleCols.map((c) => <TableCell>{colNameMap[c] || c}</TableCell>)}
+        toggleCols.map((c) => <TableCell key={c}>{colNameMap[c] || c}</TableCell>)}
       {filterCols
         .filter((x) => !toggleCols || !toggleCols.includes(x))
         .map((c) => {
@@ -42,7 +41,7 @@ const HeaderRow = ({
             toRet = <CourseDropDown setSearch={setSearch} search={search} />;
           }
           return (
-            <TableCell>
+            <TableCell key={c}>
               {colNameMap[c] || c} <br />
               {searchCol.includes(c) && toRet}
             </TableCell>
@@ -50,6 +49,15 @@ const HeaderRow = ({
         })}
     </TableRow>
   );
+};
+
+HeaderRow.propTypes = {
+  toggleCols: PropTypes.array,
+  colNameMap: PropTypes.object.isRequired,
+  filterCols: PropTypes.array.isRequired,
+  search: PropTypes.object.isRequired,
+  setSearch: PropTypes.func.isRequired,
+  searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string]).isRequired,
 };
 
 export default HeaderRow;
