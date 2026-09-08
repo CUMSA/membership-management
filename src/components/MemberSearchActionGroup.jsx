@@ -65,6 +65,42 @@ const MemberSearchActionGroup = ({
     done(true);
   };
 
+  const handleCheckWithDetails = (event, done) => {
+    const crsidDataProc = parseCrsids().map((c) => {
+      const entry = findEntry(c);
+      if (entry.length > 0) {
+        const { Paid, Expired, CardIssued, HomeMobile, UKMobile, AltEmail } =
+          entry[0];
+        return {
+          Crsid: c,
+          InDatabase: true,
+          ValidMember: Paid && !Expired,
+          Paid,
+          CardIssued,
+          Expired,
+          HomeMobile,
+          UKMobile,
+          AltEmail,
+        };
+      } else {
+        return {
+          Crsid: c,
+          InDatabase: false,
+          ValidMember: false,
+          Paid: false,
+          CardIssued: false,
+          Expired: false,
+          HomeMobile: "",
+          UKMobile: "",
+          AltEmail: "",
+        };
+      }
+    });
+
+    setCrsidData(crsidDataProc);
+    done(true);
+  };
+
   return (
     <div className="member-action">
       <MemberAgeDropDown
@@ -104,6 +140,15 @@ const MemberSearchActionGroup = ({
             value={crsids}
           ></textarea>
 
+          <CSVLink
+            data={crsidData}
+            onClick={handleCheckWithDetails}
+            asyncOnClick={true}
+            filename="Crsid-member-check.csv"
+            separator={`\t`}
+          >
+            <button className="csvDownloadBtn">Check + Contact Details</button>
+          </CSVLink>
           <CSVLink
             data={crsidData}
             onClick={handleCheck}
