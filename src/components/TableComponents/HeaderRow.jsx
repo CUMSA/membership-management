@@ -16,7 +16,9 @@ const HeaderRow = ({
   return (
     <TableRow>
       {toggleCols &&
-        toggleCols.map((c) => <TableCell key={c}>{colNameMap[c] || c}</TableCell>)}
+        toggleCols.map((c) => (
+          <TableCell key={c}>{colNameMap[c] || c}</TableCell>
+        ))}
       {filterCols
         .filter((x) => !toggleCols || !toggleCols.includes(x))
         .map((c) => {
@@ -57,7 +59,8 @@ HeaderRow.propTypes = {
   filterCols: PropTypes.array.isRequired,
   search: PropTypes.object.isRequired,
   setSearch: PropTypes.func.isRequired,
-  searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string]).isRequired,
+  searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string])
+    .isRequired,
 };
 
 export default HeaderRow;

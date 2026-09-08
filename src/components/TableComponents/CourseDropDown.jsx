@@ -17,7 +17,9 @@ export default function CourseDropDown({ search, setSearch }) {
       fullWidth
     >
       {Object.keys(coursemap).map((k) => (
-        <MenuItem key={k} value={coursemap[k]}>{coursemap[k]}</MenuItem>
+        <MenuItem key={k} value={coursemap[k]}>
+          {coursemap[k]}
+        </MenuItem>
       ))}
       <MenuItem value="">None</MenuItem>
     </Select>
