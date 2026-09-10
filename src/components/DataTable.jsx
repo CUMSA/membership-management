@@ -235,7 +235,7 @@ export default function DataTable({
                   else if (data.Paid && data.CardIssued && !data.Expired)
                     badgeCard = <div className="badge valid">Valid</div>;
 
-                      return (
+                  return (
                     <div key={data.Crsid}>
                       {memberBadge && (
                         <div className="badgeContainer">{badgeCard}</div>
@@ -344,7 +344,8 @@ DataTable.propTypes = {
   filterCols: PropTypes.array.isRequired,
   toggleCols: PropTypes.array,
   handleToggle: PropTypes.func.isRequired,
-  searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string]).isRequired,
+  searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string])
+    .isRequired,
   sortF: PropTypes.func.isRequired,
   isLoading: PropTypes.bool.isRequired,
   memberFilter: PropTypes.string,
