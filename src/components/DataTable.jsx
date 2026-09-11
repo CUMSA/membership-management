@@ -88,20 +88,18 @@ export default function DataTable({
             !search.Crsid ||
             emailRemoveCamDomain(d.Crsid)
               .toLowerCase()
-              .startsWith(emailRemoveCamDomain(search.Crsid).toLowerCase()),
+              .includes(emailRemoveCamDomain(search.Crsid).toLowerCase()),
         )
         .filter((d) => !search.College || d.College === search.College)
         .filter(
           (d) =>
             !search.FirstName ||
-            d.FirstName.toLowerCase().startsWith(
-              search.FirstName.toLowerCase(),
-            ),
+            d.FirstName.toLowerCase().includes(search.FirstName.toLowerCase()),
         )
         .filter(
           (d) =>
             !search.LastName ||
-            d.LastName.toLowerCase().startsWith(search.LastName.toLowerCase()),
+            d.LastName.toLowerCase().includes(search.LastName.toLowerCase()),
         )
         .filter(
           (d) =>
@@ -128,14 +126,14 @@ export default function DataTable({
         .filter(
           (d) =>
             !search.Scholarship ||
-            d.Scholarship.toLowerCase().startsWith(
+            d.Scholarship.toLowerCase().includes(
               search.Scholarship.toLowerCase(),
             ),
         )
         .filter(
           (d) =>
             !search.Nationality ||
-            d.Nationality.toLowerCase().startsWith(
+            d.Nationality.toLowerCase().includes(
               search.Nationality.toLowerCase(),
             ),
         )
