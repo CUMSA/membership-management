@@ -175,11 +175,16 @@ export default function DataTable({
           placeholder="Select an attribute"
           value={selectedAttribute}
         >
-          {filterCols.map((col) => (
-            <MenuItem key={col} value={col}>
-              {col}
-            </MenuItem>
-          ))}
+          <MenuItem value="" aria-label="No breakdown">
+            &nbsp;
+          </MenuItem>
+          {filterCols
+            .filter((col) => col !== "Crsid")
+            .map((col) => (
+              <MenuItem key={col} value={col}>
+                {col}
+              </MenuItem>
+            ))}
         </Select>
 
         {selectedAttribute && (
