@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
+import { MenuItem, TextField, Typography } from "@mui/material";
 
 import scan from "../../dynamo/query";
 import DataTable from "../DataTable";
@@ -12,6 +13,35 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
   const { user } = useAuthenticator((context) => [context.user]);
   const [data, setData] = useState([]);
   const [allCols, setAllCols] = useState([]);
+  const [registrationFilter, setRegistrationFilter] = useState("pastMonth");
+
+  const now = new Date();
+  const julyYear = now.getFullYear() - (now.getMonth() < 6 ? 1 : 0);
+
+  const filteredData = useMemo(() => {
+    if (registrationFilter === "all") return data;
+
+    const cutoff =
+      registrationFilter === "sinceJuly"
+        ? new Date(julyYear, 6, 1)
+        : new Date();
+    if (registrationFilter === "pastMonth") {
+      const day = cutoff.getDate();
+      cutoff.setDate(1);
+      cutoff.setMonth(cutoff.getMonth() - 1);
+      const lastDay = new Date(
+        cutoff.getFullYear(),
+        cutoff.getMonth() + 1,
+        0,
+      ).getDate();
+      cutoff.setDate(Math.min(day, lastDay));
+    }
+
+    return data.filter(
+      ({ RegistrationTime }) =>
+        RegistrationTime && new Date(RegistrationTime) >= cutoff,
+    );
+  }, [data, registrationFilter, julyYear]);
 
   const handleSetPayTrue = (newVal, Crsid) => {
     const token = user.getSignInUserSession().getIdToken().getJwtToken();
@@ -76,9 +106,26 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
   return (
     <>
       <div className="table-wrap">
+        <TextField
+          select
+          label="Filter"
+          value={registrationFilter}
+          onChange={(event) => {
+            setRegistrationFilter(event.target.value);
+          }}
+          size="small"
+          sx={{ minWidth: 300 }}
+        >
+          <MenuItem value="pastMonth">Past 1 month</MenuItem>
+          <MenuItem value="sinceJuly">Since July ({julyYear})</MenuItem>
+          <MenuItem value="all">All</MenuItem>
+        </TextField>
+        <Typography variant="body2" sx={{ my: 1 }}>
+          Showing {filteredData.length} of {data.length} unpaid members.
+        </Typography>
         <DataTable
           handleToggle={handleSetPayTrue}
-          rows={data}
+          rows={filteredData}
           allCols={allCols}
           filterCols={[
             "Paid",

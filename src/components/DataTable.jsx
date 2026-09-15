@@ -62,9 +62,19 @@ export default function DataTable({
   const [countsByAttribute, setCountsByAttribute] = useState({}); // { attribute: count }
   // const [tableData, setTableData] = useState([]);
 
+  const currentPage =
+    rowsPerPage === -1
+      ? 0
+      : Math.min(
+          page,
+          Math.max(0, Math.ceil(dispData.length / rowsPerPage) - 1),
+        );
+
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    currentPage > 0
+      ? Math.max(0, (1 + currentPage) * rowsPerPage - dispData.length)
+      : 0;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -76,8 +86,8 @@ export default function DataTable({
   };
 
   useEffect(() => {
-    setDispData(rows.sort(sortF));
-  }, [rows, sortF]);
+    setPage(0);
+  }, [rows, search, memberFilter, validOnly]);
 
   useEffect(() => {
     const f = async () => {
@@ -230,7 +240,12 @@ export default function DataTable({
             {/* Data */}
             {!isFiltering &&
               dispData
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .slice(
+                  rowsPerPage === -1 ? 0 : currentPage * rowsPerPage,
+                  rowsPerPage === -1
+                    ? undefined
+                    : (currentPage + 1) * rowsPerPage,
+                )
                 .map((data) => {
                   let badgeCard;
 
@@ -334,7 +349,7 @@ export default function DataTable({
         ]}
         count={dispData.length}
         rowsPerPage={rowsPerPage}
-        page={page}
+        page={currentPage}
         SelectProps={{
           inputProps: {
             "aria-label": "rows per page",
