@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
-import { MenuItem, TextField, Typography } from "@mui/material";
+import { Button, MenuItem, Stack, TextField, Typography } from "@mui/material";
 
 import scan from "../../dynamo/query";
 import DataTable from "../DataTable";
@@ -9,11 +9,15 @@ import transform from "../../dynamo/transform";
 import update from "../../dynamo/update";
 import { byDate } from "../../utils/sortFuncs";
 
+const sortByRegistrationTime = byDate(1);
+
 const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
   const { user } = useAuthenticator((context) => [context.user]);
   const [data, setData] = useState([]);
   const [allCols, setAllCols] = useState([]);
   const [registrationFilter, setRegistrationFilter] = useState("pastMonth");
+  const [selectedCrsids, setSelectedCrsids] = useState([]);
+  const [isApproving, setIsApproving] = useState(false);
 
   const now = new Date();
   const julyYear = now.getFullYear() - (now.getMonth() < 6 ? 1 : 0);
@@ -43,26 +47,50 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
     );
   }, [data, registrationFilter, julyYear]);
 
-  const handleSetPayTrue = (newVal, Crsid) => {
-    const token = user.getSignInUserSession().getIdToken().getJwtToken();
+  const handleSelectMember = (Crsid, checked) => {
+    setSelectedCrsids((selected) =>
+      checked ? [...selected, Crsid] : selected.filter((id) => id !== Crsid),
+    );
+  };
 
-    if (newVal === true) {
-      return update({ Crsid, Action: "ConfirmPayment" }, token)
-        .then(() => {
-          setToastSetting({
-            visible: true,
-            content: `Successfully set Paid for ${Crsid} to true`,
-            severity: "success",
-          });
-          setData(data.filter((d) => d.Crsid != Crsid));
-        })
-        .catch(() => {
-          setToastSetting({
-            visible: true,
-            content: "Failed to set Paid to true. Try again later.",
-            severity: "error",
-          });
-        });
+  const handleMarkSelectedPaid = async () => {
+    if (isLoading || isApproving || selectedCrsids.length === 0) return;
+
+    setIsApproving(true);
+    try {
+      const token = user.getSignInUserSession().getIdToken().getJwtToken();
+      const results = await Promise.allSettled(
+        selectedCrsids.map((Crsid) =>
+          update({ Crsid, Action: "ConfirmPayment" }, token),
+        ),
+      );
+      const approved = selectedCrsids.filter(
+        (_, index) => results[index].status === "fulfilled",
+      );
+      const failed = selectedCrsids.filter(
+        (_, index) => results[index].status === "rejected",
+      );
+
+      setData((current) =>
+        current.filter(({ Crsid }) => !approved.includes(Crsid)),
+      );
+      setSelectedCrsids(failed);
+      setToastSetting({
+        visible: true,
+        content:
+          failed.length > 0
+            ? `Approved ${approved.length} of ${selectedCrsids.length} payments. ${failed.length} failed and remain selected; try again.`
+            : `Marked ${approved.length} ${approved.length === 1 ? "member" : "members"} as paid.`,
+        severity: failed.length > 0 ? "error" : "success",
+      });
+    } catch {
+      setToastSetting({
+        visible: true,
+        content: "Failed to approve payments. Try again later.",
+        severity: "error",
+      });
+    } finally {
+      setIsApproving(false);
     }
   };
 
@@ -106,38 +134,67 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
   return (
     <>
       <div className="table-wrap">
-        <TextField
-          select
-          label="Filter"
-          value={registrationFilter}
-          onChange={(event) => {
-            setRegistrationFilter(event.target.value);
-          }}
-          size="small"
-          sx={{ minWidth: 300 }}
+        <Stack
+          direction="row"
+          spacing={2}
+          useFlexGap
+          sx={{ mb: 1, flexWrap: "wrap" }}
         >
-          <MenuItem value="pastMonth">Past 1 month</MenuItem>
-          <MenuItem value="sinceJuly">Since July ({julyYear})</MenuItem>
-          <MenuItem value="all">All</MenuItem>
-        </TextField>
+          <TextField
+            select
+            label="Filter"
+            value={registrationFilter}
+            onChange={(event) => {
+              setRegistrationFilter(event.target.value);
+              setSelectedCrsids([]);
+            }}
+            disabled={isLoading || isApproving}
+            size="small"
+            sx={{ minWidth: 300 }}
+          >
+            <MenuItem value="pastMonth">Past 1 month</MenuItem>
+            <MenuItem value="sinceJuly">Since July ({julyYear})</MenuItem>
+            <MenuItem value="all">All</MenuItem>
+          </TextField>
+          <Button
+            variant="contained"
+            onClick={handleMarkSelectedPaid}
+            disabled={isLoading || isApproving || selectedCrsids.length === 0}
+            sx={{ alignSelf: "flex-start" }}
+          >
+            {isApproving
+              ? "Approving..."
+              : `Mark selected as paid (${selectedCrsids.length})`}
+          </Button>
+          <Button
+            onClick={() => setSelectedCrsids([])}
+            disabled={isApproving || selectedCrsids.length === 0}
+            sx={{ alignSelf: "flex-start" }}
+          >
+            Clear selection
+          </Button>
+        </Stack>
         <Typography variant="body2" sx={{ my: 1 }}>
-          Showing {filteredData.length} of {data.length} unpaid members.
+          {filteredData.length} of {data.length} unpaid members match the date
+          filter. Selections are kept across pages and searches, and cleared
+          when the date filter changes. Check each payment before approving;
+          this action cannot be undone.
         </Typography>
         <DataTable
-          handleToggle={handleSetPayTrue}
           rows={filteredData}
           allCols={allCols}
+          selectedCrsids={selectedCrsids}
+          onSelectRow={handleSelectMember}
+          selectionDisabled={isLoading || isApproving}
           filterCols={[
-            "Paid",
             "Crsid",
             "MembershipType",
             "FirstName",
             "LastName",
             "RegistrationTime",
           ]}
-          sortF={byDate(1)}
-          searchCol={"Crsid"}
-          toggleCols={["Paid"]}
+          sortF={sortByRegistrationTime}
+          searchCol={["Crsid", "FirstName", "LastName"]}
           isLoading={isLoading}
         />
       </div>

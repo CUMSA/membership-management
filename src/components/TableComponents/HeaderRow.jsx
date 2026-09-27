@@ -12,9 +12,11 @@ const HeaderRow = ({
   search,
   setSearch,
   searchCol,
+  selectionEnabled = false,
 }) => {
   return (
     <TableRow>
+      {selectionEnabled && <TableCell padding="checkbox">Select</TableCell>}
       {toggleCols &&
         toggleCols.map((c) => (
           <TableCell key={c}>{colNameMap[c] || c}</TableCell>
@@ -61,6 +63,7 @@ HeaderRow.propTypes = {
   setSearch: PropTypes.func.isRequired,
   searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string])
     .isRequired,
+  selectionEnabled: PropTypes.bool,
 };
 
 export default HeaderRow;

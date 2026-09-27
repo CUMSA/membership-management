@@ -9,6 +9,7 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TableHead from "@mui/material/TableHead";
+import Checkbox from "@mui/material/Checkbox";
 
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -31,6 +32,9 @@ export default function DataTable({
   memberFilter = "all",
   memberBadge = false,
   validOnly = false,
+  selectedCrsids = [],
+  onSelectRow,
+  selectionDisabled = false,
 }) {
   const colNameMap = {
     Crsid: "Crsid",
@@ -235,6 +239,7 @@ export default function DataTable({
               search={search}
               setSearch={setSearch}
               searchCol={searchCol}
+              selectionEnabled={Boolean(onSelectRow)}
             />
 
             {/* Data */}
@@ -266,7 +271,24 @@ export default function DataTable({
                         <div className="badgeContainer">{badgeCard}</div>
                       )}
 
-                      <TableRow key={data.Crsid}>
+                      <TableRow
+                        key={data.Crsid}
+                        selected={selectedCrsids.includes(data.Crsid)}
+                      >
+                        {onSelectRow && (
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={selectedCrsids.includes(data.Crsid)}
+                              onChange={(event) =>
+                                onSelectRow(data.Crsid, event.target.checked)
+                              }
+                              disabled={selectionDisabled}
+                              inputProps={{
+                                "aria-label": `Select ${data.Crsid}`,
+                              }}
+                            />
+                          </TableCell>
+                        )}
                         {/* Toggle */}
                         {toggleCols &&
                           toggleCols.map((c) => (
@@ -293,7 +315,9 @@ export default function DataTable({
 
             {emptyRows > 0 && (
               <TableRow style={{ height: 53 * emptyRows }}>
-                <TableCell colSpan={6} />
+                <TableCell
+                  colSpan={filterCols.length + (onSelectRow ? 1 : 0)}
+                />
               </TableRow>
             )}
           </TableBody>
@@ -368,7 +392,7 @@ DataTable.propTypes = {
   rows: PropTypes.array.isRequired,
   filterCols: PropTypes.array.isRequired,
   toggleCols: PropTypes.array,
-  handleToggle: PropTypes.func.isRequired,
+  handleToggle: PropTypes.func,
   searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string])
     .isRequired,
   sortF: PropTypes.func.isRequired,
@@ -376,4 +400,7 @@ DataTable.propTypes = {
   memberFilter: PropTypes.string,
   memberBadge: PropTypes.bool,
   validOnly: PropTypes.bool,
+  selectedCrsids: PropTypes.arrayOf(PropTypes.string),
+  onSelectRow: PropTypes.func,
+  selectionDisabled: PropTypes.bool,
 };
