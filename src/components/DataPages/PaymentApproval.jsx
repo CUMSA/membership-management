@@ -1,7 +1,21 @@
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
-import { Button, MenuItem, Stack, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  List,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 
 import scan from "../../dynamo/query";
 import DataTable from "../DataTable";
@@ -17,7 +31,9 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
   const [allCols, setAllCols] = useState([]);
   const [registrationFilter, setRegistrationFilter] = useState("pastMonth");
   const [selectedCrsids, setSelectedCrsids] = useState([]);
+  const [matchingRows, setMatchingRows] = useState([]);
   const [isApproving, setIsApproving] = useState(false);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
 
   const now = new Date();
   const julyYear = now.getFullYear() - (now.getMonth() < 6 ? 1 : 0);
@@ -47,14 +63,31 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
     );
   }, [data, registrationFilter, julyYear]);
 
+  const selectedMembers = data.filter(({ Crsid }) =>
+    selectedCrsids.includes(Crsid),
+  );
+  const hiddenSelectedCount = selectedCrsids.filter(
+    (id) => !matchingRows.some(({ Crsid }) => Crsid === id),
+  ).length;
+
   const handleSelectMember = (Crsid, checked) => {
     setSelectedCrsids((selected) =>
       checked ? [...selected, Crsid] : selected.filter((id) => id !== Crsid),
     );
   };
 
+  const handleCloseReview = () => {
+    if (!isApproving) setIsReviewOpen(false);
+  };
+
   const handleMarkSelectedPaid = async () => {
-    if (isLoading || isApproving || selectedCrsids.length === 0) return;
+    if (
+      isLoading ||
+      isApproving ||
+      !isReviewOpen ||
+      selectedCrsids.length === 0
+    )
+      return;
 
     setIsApproving(true);
     try {
@@ -75,6 +108,7 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
         current.filter(({ Crsid }) => !approved.includes(Crsid)),
       );
       setSelectedCrsids(failed);
+      if (failed.length === 0) setIsReviewOpen(false);
       setToastSetting({
         visible: true,
         content:
@@ -158,7 +192,7 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
           </TextField>
           <Button
             variant="contained"
-            onClick={handleMarkSelectedPaid}
+            onClick={() => setIsReviewOpen(true)}
             disabled={isLoading || isApproving || selectedCrsids.length === 0}
             sx={{ alignSelf: "flex-start" }}
           >
@@ -166,6 +200,11 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
               ? "Approving..."
               : `Mark selected as paid (${selectedCrsids.length})`}
           </Button>
+          {hiddenSelectedCount > 0 && (
+            <Typography color="error" sx={{ alignSelf: "center" }}>
+              {hiddenSelectedCount} hidden by search
+            </Typography>
+          )}
           <Button
             onClick={() => setSelectedCrsids([])}
             disabled={isApproving || selectedCrsids.length === 0}
@@ -175,12 +214,10 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
           </Button>
         </Stack>
         <Typography variant="body2" sx={{ my: 1 }}>
-          {filteredData.length} of {data.length} unpaid members match the date
-          filter. Selections are kept across pages and searches, and cleared
-          when the date filter changes. Check each payment before approving;
-          this action cannot be undone.
+          {matchingRows.length} of {data.length} unpaid members
         </Typography>
         <DataTable
+          onFilteredRowsChange={setMatchingRows}
           rows={filteredData}
           allCols={allCols}
           selectedCrsids={selectedCrsids}
@@ -198,6 +235,49 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
           isLoading={isLoading}
         />
       </div>
+      <Dialog
+        open={isReviewOpen}
+        onClose={handleCloseReview}
+        disableEscapeKeyDown={isApproving}
+        aria-labelledby="payment-review-title"
+        aria-describedby="payment-review-description"
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle id="payment-review-title">
+          Review payment approvals
+        </DialogTitle>
+        <DialogContent dividers>
+          <DialogContentText id="payment-review-description">
+            You are about to mark {selectedCrsids.length}{" "}
+            {selectedCrsids.length === 1 ? "member" : "members"} as paid.
+            Confirm that payment has been received. This action cannot be
+            undone.
+          </DialogContentText>
+          <List dense aria-label="Members selected for payment approval">
+            {selectedMembers.map(({ Crsid, FirstName, LastName }) => (
+              <ListItem key={Crsid}>
+                <ListItemText
+                  primary={`${FirstName} ${LastName}`}
+                  secondary={Crsid}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseReview} disabled={isApproving}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleMarkSelectedPaid}
+            disabled={isLoading || isApproving || selectedCrsids.length === 0}
+          >
+            {isApproving ? "Approving..." : "Confirm and mark as paid"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

@@ -32,6 +32,7 @@ export default function DataTable({
   memberFilter = "all",
   memberBadge = false,
   validOnly = false,
+  onFilteredRowsChange,
   selectedCrsids = [],
   onSelectRow,
   selectionDisabled = false,
@@ -157,6 +158,7 @@ export default function DataTable({
         ) // Filter valid members
         .sort(sortF);
       setDispData(d);
+      onFilteredRowsChange?.(d);
 
       // get counts, similar to GROUP BY construct in SQL
       const counts = {};
@@ -172,7 +174,15 @@ export default function DataTable({
       setCountsByAttribute(counts);
     };
     f();
-  }, [rows, sortF, search, memberFilter, validOnly, selectedAttribute]);
+  }, [
+    rows,
+    sortF,
+    search,
+    memberFilter,
+    validOnly,
+    selectedAttribute,
+    onFilteredRowsChange,
+  ]);
 
   useEffect(() => {
     setIsFiltering(false);
@@ -400,6 +410,7 @@ DataTable.propTypes = {
   memberFilter: PropTypes.string,
   memberBadge: PropTypes.bool,
   validOnly: PropTypes.bool,
+  onFilteredRowsChange: PropTypes.func,
   selectedCrsids: PropTypes.arrayOf(PropTypes.string),
   onSelectRow: PropTypes.func,
   selectionDisabled: PropTypes.bool,
