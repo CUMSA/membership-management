@@ -36,6 +36,7 @@ export default function DataTable({
   selectedCrsids = [],
   onSelectRow,
   selectionDisabled = false,
+  initialRowsPerPage = 5,
 }) {
   const colNameMap = {
     Crsid: "Crsid",
@@ -61,7 +62,7 @@ export default function DataTable({
   const [dispData, setDispData] = useState([false, false]);
   const [isFiltering, setIsFiltering] = useState(true);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
 
   const [selectedAttribute, setSelectedAttribute] = useState("MembershipType");
   const [countsByAttribute, setCountsByAttribute] = useState({}); // { attribute: count }
@@ -414,4 +415,5 @@ DataTable.propTypes = {
   selectedCrsids: PropTypes.arrayOf(PropTypes.string),
   onSelectRow: PropTypes.func,
   selectionDisabled: PropTypes.bool,
+  initialRowsPerPage: PropTypes.number,
 };
