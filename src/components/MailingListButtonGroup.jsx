@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
 import update from "../dynamo/update";
+import { emailAddCamDomain } from "../utils/formatEmail";
 
 const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
   const { user } = useAuthenticator((context) => [context.user]);
@@ -18,9 +19,9 @@ const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
     const text = data
       .map(
         (d) =>
-          `${d.Crsid}@cam.ac.uk ${nameUpper(d.FirstName)} ${nameUpper(
-            d.LastName,
-          )}`,
+          `${emailAddCamDomain(d.Crsid)} ${nameUpper(
+            d.FirstName,
+          )} ${nameUpper(d.LastName)}`,
       )
       .join("\n");
 
