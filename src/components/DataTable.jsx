@@ -236,7 +236,7 @@ export default function DataTable({
                     badgeCard = <div className="badge valid">Valid</div>;
 
                   return (
-                    <div key={data.Crsid}>
+                    <>
                       {memberBadge && (
                         <div className="badgeContainer">{badgeCard}</div>
                       )}
@@ -262,7 +262,7 @@ export default function DataTable({
                             <TableCell key={c}>{`${data[c]}`}</TableCell>
                           ))}
                       </TableRow>
-                    </div>
+                    </>
                   );
                 })}
 
