@@ -4,6 +4,7 @@ import { useAuthenticator } from "@aws-amplify/ui-react";
 
 import update from "../dynamo/update";
 import { emailAddCamDomain } from "../utils/formatEmail";
+import formatPhoneNumber from "../utils/formatPhone";
 
 const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
   const { user } = useAuthenticator((context) => [context.user]);
@@ -64,7 +65,7 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
             .filter((d) => d.MembershipType == "Life")
             .map((d) => ({
               Name: d.FirstName + " " + d.LastName,
-              "Phone Number": d.UKMobile,
+              "Phone Number": formatPhoneNumber(d.UKMobile),
               Email: emailAddCamDomain(d.Crsid),
             }))}
           filename={"Life-members.csv"}
@@ -80,7 +81,7 @@ const CardIssueButtonGroup = ({ data, setToastSetting, setData }) => {
             )
             .map((d) => ({
               Name: d.FirstName + " " + d.LastName,
-              "Phone Number": d.UKMobile,
+              "Phone Number": formatPhoneNumber(d.UKMobile),
               Email: emailAddCamDomain(d.Crsid),
             }))}
           filename={`1 year (${currMembershipCycle}-${
