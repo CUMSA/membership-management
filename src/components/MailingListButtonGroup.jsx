@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
 import update from "../dynamo/update";
+import { emailAddCamDomain } from "../utils/formatEmail";
 
 const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
   const { user } = useAuthenticator((context) => [context.user]);
@@ -13,22 +14,17 @@ const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
       .join(" ");
   };
 
-  const handleDownload = () => {
-    const element = document.createElement("a");
+  const handleCopy = () => {
     const text = data
       .map(
         (d) =>
-          `${d.Crsid}@cam.ac.uk ${nameUpper(d.FirstName)} ${nameUpper(
-            d.LastName,
-          )}`,
+          `${emailAddCamDomain(d.Crsid)} ${nameUpper(
+            d.FirstName,
+          )} ${nameUpper(d.LastName)}`,
       )
       .join("\n");
-
-    const file = new Blob([text], { type: "text/plain" });
-    element.href = URL.createObjectURL(file);
-    element.download = "to-add-to-mail-list.txt";
-    document.body.appendChild(element); // Required for this to work in FireFox
-    element.click();
+    navigator.clipboard.writeText(text);
+    alert("Copied 'members to add to mailing list' to clipboard!");
   };
 
   const handleMarkAll = () => {
@@ -76,8 +72,8 @@ const MailingListButtonGroup = ({ data, setToastSetting, setData }) => {
       }}
     >
       <div>
-        <button className="qpayDownloadBtn" onClick={handleDownload}>
-          Download .txt
+        <button className="sympaCopyBtn" onClick={handleCopy}>
+          Copy list
         </button>
       </div>
       <button className="markAll" onClick={handleMarkAll}>
