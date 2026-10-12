@@ -8,6 +8,8 @@ import { CSVLink } from "react-csv";
 import CloseIcon from "@mui/icons-material/Close";
 import { FormGroup, FormControlLabel, Switch } from "@mui/material";
 
+import { emailRemoveCamDomain } from "../utils/formatEmail";
+
 const MemberSearchActionGroup = ({
   memberFilter,
   validOnly: _validOnly,
@@ -31,10 +33,12 @@ const MemberSearchActionGroup = ({
       .split("\n")
       .map((c) => c.trim())
       .filter(Boolean)
-      .map((c) => (c.includes("@cam.ac.uk") ? c.split("@")[0] : c));
+      .map(emailRemoveCamDomain);
 
   const findEntry = (c) =>
-    data.filter((d) => d.Crsid.toLowerCase() == c.toLowerCase());
+    data.filter(
+      (d) => emailRemoveCamDomain(d.Crsid).toLowerCase() == c.toLowerCase(),
+    );
 
   const handleCheck = (event, done) => {
     const crsidDataProc = parseCrsids().map((c) => {
