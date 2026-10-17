@@ -15,6 +15,7 @@ import MenuItem from "@mui/material/MenuItem";
 
 import HeaderRow from "./TableComponents/HeaderRow";
 import ToggleDropdown from "./TableComponents/ToggleDropdown";
+import { emailRemoveCamDomain } from "../utils/formatEmail";
 
 import loadingGif from "../assets/loading-gif.gif";
 import { Typography } from "@mui/material";
@@ -82,7 +83,13 @@ export default function DataTable({
     const f = async () => {
       setIsFiltering(true);
       const d = rows
-        .filter((d) => !search.Crsid || d.Crsid.startsWith(search.Crsid))
+        .filter(
+          (d) =>
+            !search.Crsid ||
+            emailRemoveCamDomain(d.Crsid)
+              .toLowerCase()
+              .startsWith(emailRemoveCamDomain(search.Crsid).toLowerCase()),
+        )
         .filter((d) => !search.College || d.College === search.College)
         .filter(
           (d) =>
