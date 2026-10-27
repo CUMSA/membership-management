@@ -9,6 +9,7 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TableHead from "@mui/material/TableHead";
+import Checkbox from "@mui/material/Checkbox";
 
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -31,6 +32,11 @@ export default function DataTable({
   memberFilter = "all",
   memberBadge = false,
   validOnly = false,
+  onFilteredRowsChange,
+  selectedCrsids = [],
+  onSelectRow,
+  selectionDisabled = false,
+  initialRowsPerPage = 5,
 }) {
   const colNameMap = {
     Crsid: "Crsid",
@@ -56,15 +62,25 @@ export default function DataTable({
   const [dispData, setDispData] = useState([false, false]);
   const [isFiltering, setIsFiltering] = useState(true);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
 
   const [selectedAttribute, setSelectedAttribute] = useState("MembershipType");
   const [countsByAttribute, setCountsByAttribute] = useState({}); // { attribute: count }
   // const [tableData, setTableData] = useState([]);
 
+  const currentPage =
+    rowsPerPage === -1
+      ? 0
+      : Math.min(
+          page,
+          Math.max(0, Math.ceil(dispData.length / rowsPerPage) - 1),
+        );
+
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    currentPage > 0
+      ? Math.max(0, (1 + currentPage) * rowsPerPage - dispData.length)
+      : 0;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -76,8 +92,8 @@ export default function DataTable({
   };
 
   useEffect(() => {
-    setDispData(rows.sort(sortF));
-  }, [rows, sortF]);
+    setPage(0);
+  }, [rows, search, memberFilter, validOnly]);
 
   useEffect(() => {
     const f = async () => {
@@ -88,20 +104,18 @@ export default function DataTable({
             !search.Crsid ||
             emailRemoveCamDomain(d.Crsid)
               .toLowerCase()
-              .startsWith(emailRemoveCamDomain(search.Crsid).toLowerCase()),
+              .includes(emailRemoveCamDomain(search.Crsid).toLowerCase()),
         )
         .filter((d) => !search.College || d.College === search.College)
         .filter(
           (d) =>
             !search.FirstName ||
-            d.FirstName.toLowerCase().startsWith(
-              search.FirstName.toLowerCase(),
-            ),
+            d.FirstName.toLowerCase().includes(search.FirstName.toLowerCase()),
         )
         .filter(
           (d) =>
             !search.LastName ||
-            d.LastName.toLowerCase().startsWith(search.LastName.toLowerCase()),
+            d.LastName.toLowerCase().includes(search.LastName.toLowerCase()),
         )
         .filter(
           (d) =>
@@ -128,14 +142,14 @@ export default function DataTable({
         .filter(
           (d) =>
             !search.Scholarship ||
-            d.Scholarship.toLowerCase().startsWith(
+            d.Scholarship.toLowerCase().includes(
               search.Scholarship.toLowerCase(),
             ),
         )
         .filter(
           (d) =>
             !search.Nationality ||
-            d.Nationality.toLowerCase().startsWith(
+            d.Nationality.toLowerCase().includes(
               search.Nationality.toLowerCase(),
             ),
         )
@@ -145,6 +159,7 @@ export default function DataTable({
         ) // Filter valid members
         .sort(sortF);
       setDispData(d);
+      onFilteredRowsChange?.(d);
 
       // get counts, similar to GROUP BY construct in SQL
       const counts = {};
@@ -160,7 +175,15 @@ export default function DataTable({
       setCountsByAttribute(counts);
     };
     f();
-  }, [rows, sortF, search, memberFilter, validOnly, selectedAttribute]);
+  }, [
+    rows,
+    sortF,
+    search,
+    memberFilter,
+    validOnly,
+    selectedAttribute,
+    onFilteredRowsChange,
+  ]);
 
   useEffect(() => {
     setIsFiltering(false);
@@ -177,11 +200,16 @@ export default function DataTable({
           placeholder="Select an attribute"
           value={selectedAttribute}
         >
-          {filterCols.map((col) => (
-            <MenuItem key={col} value={col}>
-              {col}
-            </MenuItem>
-          ))}
+          <MenuItem value="" aria-label="No breakdown">
+            &nbsp;
+          </MenuItem>
+          {filterCols
+            .filter((col) => col !== "Crsid")
+            .map((col) => (
+              <MenuItem key={col} value={col}>
+                {col}
+              </MenuItem>
+            ))}
         </Select>
 
         {selectedAttribute && (
@@ -222,12 +250,18 @@ export default function DataTable({
               search={search}
               setSearch={setSearch}
               searchCol={searchCol}
+              selectionEnabled={Boolean(onSelectRow)}
             />
 
             {/* Data */}
             {!isFiltering &&
               dispData
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .slice(
+                  rowsPerPage === -1 ? 0 : currentPage * rowsPerPage,
+                  rowsPerPage === -1
+                    ? undefined
+                    : (currentPage + 1) * rowsPerPage,
+                )
                 .map((data) => {
                   let badgeCard;
 
@@ -248,7 +282,24 @@ export default function DataTable({
                         <div className="badgeContainer">{badgeCard}</div>
                       )}
 
-                      <TableRow key={data.Crsid}>
+                      <TableRow
+                        key={data.Crsid}
+                        selected={selectedCrsids.includes(data.Crsid)}
+                      >
+                        {onSelectRow && (
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={selectedCrsids.includes(data.Crsid)}
+                              onChange={(event) =>
+                                onSelectRow(data.Crsid, event.target.checked)
+                              }
+                              disabled={selectionDisabled}
+                              inputProps={{
+                                "aria-label": `Select ${data.Crsid}`,
+                              }}
+                            />
+                          </TableCell>
+                        )}
                         {/* Toggle */}
                         {toggleCols &&
                           toggleCols.map((c) => (
@@ -275,7 +326,9 @@ export default function DataTable({
 
             {emptyRows > 0 && (
               <TableRow style={{ height: 53 * emptyRows }}>
-                <TableCell colSpan={6} />
+                <TableCell
+                  colSpan={filterCols.length + (onSelectRow ? 1 : 0)}
+                />
               </TableRow>
             )}
           </TableBody>
@@ -331,7 +384,7 @@ export default function DataTable({
         ]}
         count={dispData.length}
         rowsPerPage={rowsPerPage}
-        page={page}
+        page={currentPage}
         SelectProps={{
           inputProps: {
             "aria-label": "rows per page",
@@ -350,7 +403,7 @@ DataTable.propTypes = {
   rows: PropTypes.array.isRequired,
   filterCols: PropTypes.array.isRequired,
   toggleCols: PropTypes.array,
-  handleToggle: PropTypes.func.isRequired,
+  handleToggle: PropTypes.func,
   searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string])
     .isRequired,
   sortF: PropTypes.func.isRequired,
@@ -358,4 +411,9 @@ DataTable.propTypes = {
   memberFilter: PropTypes.string,
   memberBadge: PropTypes.bool,
   validOnly: PropTypes.bool,
+  onFilteredRowsChange: PropTypes.func,
+  selectedCrsids: PropTypes.arrayOf(PropTypes.string),
+  onSelectRow: PropTypes.func,
+  selectionDisabled: PropTypes.bool,
+  initialRowsPerPage: PropTypes.number,
 };
