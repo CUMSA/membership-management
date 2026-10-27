@@ -15,6 +15,10 @@ function PageNavigator({
   handleClose,
   setPage,
   pageMap,
+  onRefresh,
+  isRefreshing,
+  isUpdating,
+  refreshDisabled,
 }) {
   return (
     <div className="headerBanner">
@@ -33,9 +37,18 @@ function PageNavigator({
           <h2>{pageMap[page].name}</h2>
           <ArrowDropDownIcon size={30} />
         </button>
-        <button className="signout-btn" onClick={signOut}>
-          Sign out
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button onClick={onRefresh} disabled={refreshDisabled}>
+            {isRefreshing
+              ? "Refreshing..."
+              : isUpdating
+                ? "Updating..."
+                : "Refresh"}
+          </button>
+          <button className="signout-btn" onClick={signOut}>
+            Sign out
+          </button>
+        </div>
       </div>
 
       <Menu
@@ -75,6 +88,10 @@ PageNavigator.propTypes = {
   handleClose: PropTypes.func.isRequired,
   setPage: PropTypes.func.isRequired,
   pageMap: PropTypes.array.isRequired,
+  onRefresh: PropTypes.func.isRequired,
+  isRefreshing: PropTypes.bool.isRequired,
+  isUpdating: PropTypes.bool.isRequired,
+  refreshDisabled: PropTypes.bool.isRequired,
 };
 
 export default PageNavigator;

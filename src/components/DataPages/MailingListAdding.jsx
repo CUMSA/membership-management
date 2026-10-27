@@ -1,61 +1,30 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
-import { useAuthenticator } from "@aws-amplify/ui-react";
 
-import scan from "../../dynamo/query";
+import useMemberData from "../../hooks/useMemberData";
 import DataTable from "../DataTable";
-import transform from "../../dynamo/transform";
 import { byDate } from "../../utils/sortFuncs";
 import MailingListButtonGroup from "../MailingListButtonGroup";
 
-const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
-  const { user } = useAuthenticator((context) => [context.user]);
-  const [data, setData] = useState([]);
-  const [allCols, setAllCols] = useState([]);
+const memberQuery = {
+  ExpressionAttributeValues: {
+    ":p": { BOOL: true },
+    ":c": { BOOL: true },
+    ":m": { BOOL: false },
+  },
+  FilterExpression: "Paid = :p and CardIssued = :c and InMailingList = :m",
+};
 
-  useEffect(() => {
-    const token = user.getSignInUserSession().getIdToken().getJwtToken();
-    setIsLoading(true);
-    scan(
-      {
-        ExpressionAttributeValues: {
-          ":p": {
-            BOOL: true,
-          },
-          ":c": {
-            BOOL: true,
-          },
-          ":m": {
-            BOOL: false,
-          },
-        },
-        FilterExpression:
-          "Paid = :p and CardIssued = :c and InMailingList = :m",
-      },
-      token,
-    )
-      .then((r) => {
-        setIsLoading(false);
-        setData(transform(r));
-        if (r.length > 0) {
-          setAllCols(
-            Object.keys(r[0]).map((k) => ({
-              field: k,
-              headerName: k,
-              width: 150,
-            })),
-          );
-        }
-      })
-      .catch(() => {
-        setIsLoading(false);
-        setToastSetting({
-          visible: true,
-          content: "Failed to fetch data. Try again later.",
-          severity: "error",
-        });
-      });
-  }, [setIsLoading, setToastSetting, user]);
+const MailingListAdding = ({ setToastSetting }) => {
+  const {
+    data,
+    setData,
+    isLoading,
+    loadedAt,
+    isStale,
+    isUpdating,
+    setIsUpdating,
+    markStale,
+  } = useMemberData(memberQuery);
 
   return (
     <>
@@ -64,11 +33,13 @@ const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
           data={data}
           setToastSetting={setToastSetting}
           setData={setData}
+          disabled={isLoading || isStale || isUpdating}
+          setIsUpdating={setIsUpdating}
+          onUpdateError={markStale}
         />
 
         <DataTable
           rows={data}
-          allCols={allCols}
           filterCols={[
             "Crsid",
             "FirstName",
@@ -80,6 +51,7 @@ const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
           sortF={byDate(1)}
           toggleCols={[]}
           isLoading={isLoading}
+          hasLoaded={Boolean(loadedAt)}
           memberBadge
         />
       </div>
@@ -88,8 +60,6 @@ const MailingListAdding = ({ isLoading, setIsLoading, setToastSetting }) => {
 };
 
 MailingListAdding.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
-  setIsLoading: PropTypes.func.isRequired,
   setToastSetting: PropTypes.func.isRequired,
 };
 

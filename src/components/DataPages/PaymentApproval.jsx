@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
-import { useAuthenticator } from "@aws-amplify/ui-react";
 import {
   Button,
   Dialog,
@@ -17,23 +16,46 @@ import {
   Typography,
 } from "@mui/material";
 
-import scan from "../../dynamo/query";
+import useMemberData from "../../hooks/useMemberData";
 import DataTable from "../DataTable";
-import transform from "../../dynamo/transform";
 import update from "../../dynamo/update";
 import { byDate } from "../../utils/sortFuncs";
 
 const sortByRegistrationTime = byDate(1);
 
-const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
-  const { user } = useAuthenticator((context) => [context.user]);
-  const [data, setData] = useState([]);
-  const [allCols, setAllCols] = useState([]);
+const memberQuery = {
+  ExpressionAttributeValues: { ":p": { BOOL: false } },
+  FilterExpression: "Paid = :p",
+};
+
+const PaymentApproval = ({ setToastSetting }) => {
+  const {
+    data,
+    setData,
+    user,
+    isLoading,
+    isStale,
+    loadedAt,
+    isUpdating: isApproving,
+    setIsUpdating: setIsApproving,
+    markStale,
+  } = useMemberData(memberQuery);
+
   const [registrationFilter, setRegistrationFilter] = useState("pastMonth");
   const [selectedCrsids, setSelectedCrsids] = useState([]);
   const [matchingRows, setMatchingRows] = useState([]);
-  const [isApproving, setIsApproving] = useState(false);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+
+  useEffect(() => {
+    if (loadedAt) {
+      setSelectedCrsids([]);
+      setIsReviewOpen(false);
+    }
+  }, [loadedAt]);
+
+  useEffect(() => {
+    if (isStale && !isApproving) setIsReviewOpen(false);
+  }, [isStale, isApproving]);
 
   const now = new Date();
   const julyYear = now.getFullYear() - (now.getMonth() < 6 ? 1 : 0);
@@ -83,6 +105,7 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
   const handleMarkSelectedPaid = async () => {
     if (
       isLoading ||
+      isStale ||
       isApproving ||
       !isReviewOpen ||
       selectedCrsids.length === 0
@@ -108,62 +131,29 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
         current.filter(({ Crsid }) => !approved.includes(Crsid)),
       );
       setSelectedCrsids(failed);
-      if (failed.length === 0) setIsReviewOpen(false);
+      setIsReviewOpen(false);
+      if (failed.length > 0) markStale();
       setToastSetting({
         visible: true,
         content:
           failed.length > 0
-            ? `Approved ${approved.length} of ${selectedCrsids.length} payments. ${failed.length} failed and remain selected; try again.`
+            ? `Approved ${approved.length} of ${selectedCrsids.length} payments. ${failed.length} could not be confirmed; refreshing data.`
             : `Marked ${approved.length} ${approved.length === 1 ? "member" : "members"} as paid.`,
         severity: failed.length > 0 ? "error" : "success",
       });
     } catch {
+      setIsReviewOpen(false);
+      markStale();
       setToastSetting({
         visible: true,
-        content: "Failed to approve payments. Try again later.",
+        content:
+          "Could not confirm payments. Refreshing data; review before retrying.",
         severity: "error",
       });
     } finally {
       setIsApproving(false);
     }
   };
-
-  useEffect(() => {
-    const token = user.getSignInUserSession().getIdToken().getJwtToken();
-    setIsLoading(true);
-    scan(
-      {
-        ExpressionAttributeValues: {
-          ":p": {
-            BOOL: false,
-          },
-        },
-        FilterExpression: "Paid = :p",
-      },
-      token,
-    )
-      .then((r) => {
-        setData(transform(r));
-        setIsLoading(false);
-        if (r.length > 0) {
-          setAllCols(
-            Object.keys(r[0]).map((k) => ({
-              field: k,
-              headerName: k,
-              width: 150,
-            })),
-          );
-        }
-      })
-      .catch(() => {
-        setIsLoading(false);
-        setToastSetting({
-          visible: true,
-          content: "Failed to fetch data. Try again later.",
-          severity: "error",
-        });
-      });
-  }, [setIsLoading, setToastSetting, user]);
 
   return (
     <>
@@ -193,7 +183,9 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
           <Button
             variant="contained"
             onClick={() => setIsReviewOpen(true)}
-            disabled={isLoading || isApproving || selectedCrsids.length === 0}
+            disabled={
+              isLoading || isStale || isApproving || selectedCrsids.length === 0
+            }
             sx={{ alignSelf: "flex-start" }}
           >
             {isApproving
@@ -213,17 +205,18 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
             Clear selection
           </Button>
         </Stack>
-        <Typography variant="body2" sx={{ my: 1 }}>
-          {matchingRows.length} of {data.length} unpaid members
-        </Typography>
+        {loadedAt && (
+          <Typography variant="body2" sx={{ my: 1 }}>
+            {matchingRows.length} of {data.length} unpaid members
+          </Typography>
+        )}
         <DataTable
           onFilteredRowsChange={setMatchingRows}
           rows={filteredData}
           initialRowsPerPage={-1}
-          allCols={allCols}
           selectedCrsids={selectedCrsids}
           onSelectRow={handleSelectMember}
-          selectionDisabled={isLoading || isApproving}
+          selectionDisabled={isLoading || isStale || isApproving}
           filterCols={[
             "Crsid",
             "MembershipType",
@@ -234,6 +227,7 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
           sortF={sortByRegistrationTime}
           searchCol={["Crsid", "FirstName", "LastName"]}
           isLoading={isLoading}
+          hasLoaded={Boolean(loadedAt)}
         />
       </div>
       <Dialog
@@ -273,7 +267,9 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
           <Button
             variant="contained"
             onClick={handleMarkSelectedPaid}
-            disabled={isLoading || isApproving || selectedCrsids.length === 0}
+            disabled={
+              isLoading || isStale || isApproving || selectedCrsids.length === 0
+            }
           >
             {isApproving ? "Approving..." : "Confirm and mark as paid"}
           </Button>
@@ -284,8 +280,6 @@ const PaymentApproval = ({ isLoading, setIsLoading, setToastSetting }) => {
 };
 
 PaymentApproval.propTypes = {
-  isLoading: PropTypes.bool.isRequired,
-  setIsLoading: PropTypes.func.isRequired,
   setToastSetting: PropTypes.func.isRequired,
 };
 
