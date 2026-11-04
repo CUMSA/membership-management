@@ -26,9 +26,11 @@ export default function DataTable({
   filterCols,
   toggleCols,
   handleToggle,
+  toggleDisabled = false,
   searchCol,
   sortF,
   isLoading,
+  hasLoaded = true,
   memberFilter = "all",
   memberBadge = false,
   validOnly = false,
@@ -309,6 +311,7 @@ export default function DataTable({
                                 attr={c}
                                 Crsid={data.Crsid}
                                 handleToggle={handleToggle}
+                                disabled={toggleDisabled}
                               />
                             </TableCell>
                           ))}
@@ -367,7 +370,11 @@ export default function DataTable({
               alignItems: "center",
             }}
           >
-            <Typography>No records to show</Typography>
+            <Typography>
+              {hasLoaded
+                ? "No records to show"
+                : "Data unavailable. Refresh to try again."}
+            </Typography>
           </div>
         )}
       </TableContainer>
@@ -404,10 +411,12 @@ DataTable.propTypes = {
   filterCols: PropTypes.array.isRequired,
   toggleCols: PropTypes.array,
   handleToggle: PropTypes.func,
+  toggleDisabled: PropTypes.bool,
   searchCol: PropTypes.oneOfType([PropTypes.array, PropTypes.string])
     .isRequired,
   sortF: PropTypes.func.isRequired,
   isLoading: PropTypes.bool.isRequired,
+  hasLoaded: PropTypes.bool,
   memberFilter: PropTypes.string,
   memberBadge: PropTypes.bool,
   validOnly: PropTypes.bool,

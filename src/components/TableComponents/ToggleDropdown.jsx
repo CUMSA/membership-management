@@ -5,12 +5,22 @@ import { MenuButton } from "@mui/base/MenuButton";
 import { MenuItem, menuItemClasses } from "@mui/base/MenuItem";
 import { styled } from "@mui/system";
 
-export default function ToggleDropdown({ attr, currVal, Crsid, handleToggle }) {
+export default function ToggleDropdown({
+  attr,
+  currVal,
+  Crsid,
+  handleToggle,
+  disabled = false,
+}) {
   return (
     <Dropdown>
-      <TriggerButton currVal={currVal}>{`${currVal}`}</TriggerButton>
+      <TriggerButton
+        currVal={currVal}
+        disabled={disabled}
+      >{`${currVal}`}</TriggerButton>
       <Menu slots={{ listbox: StyledListbox }}>
         <StyledMenuItem
+          disabled={disabled}
           onClick={() => {
             handleToggle(!currVal, Crsid);
           }}
@@ -31,6 +41,7 @@ ToggleDropdown.propTypes = {
   currVal: PropTypes.bool.isRequired,
   Crsid: PropTypes.string.isRequired,
   handleToggle: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };
 
 const blue = {

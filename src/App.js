@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 
 import { Amplify } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
@@ -18,6 +18,7 @@ import MailingListAdding from "./components/DataPages/MailingListAdding";
 
 import PageNavigator from "./components/PageNavigator";
 import components from "./cognito-components";
+import { DataRefreshContext } from "./hooks/useMemberData";
 
 Amplify.configure({
   Auth: {
@@ -64,7 +65,22 @@ function App() {
   const [page, setPage] = useState(0);
 
   const [pageMenuVisible, setPageMenuVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [refreshStatus, setRefreshStatus] = useState({
+    isLoading: true,
+  });
+  const requestRefresh = useCallback(() => setRefreshKey((key) => key + 1), []);
+  const refreshContext = useMemo(
+    () => ({
+      refreshKey,
+      requestRefresh,
+      setRefreshStatus,
+      isUpdating,
+      setIsUpdating,
+    }),
+    [refreshKey, requestRefresh, isUpdating],
+  );
 
   const open = Boolean(pageMenuVisible);
   const handleClick = (event) => {
@@ -107,25 +123,42 @@ function App() {
                 </Alert>
               </Snackbar>
 
-              <PageNavigator
-                open={open}
-                handleClick={handleClick}
-                page={page}
-                signOut={signOut}
-                pageMenuVisible={pageMenuVisible}
-                handleClose={handleClose}
-                setPage={setPage}
-                pageMap={pageMap}
-              />
+              <DataRefreshContext.Provider key={page} value={refreshContext}>
+                <PageNavigator
+                  open={open}
+                  handleClick={handleClick}
+                  page={page}
+                  signOut={signOut}
+                  pageMenuVisible={pageMenuVisible}
+                  handleClose={handleClose}
+                  setPage={setPage}
+                  pageMap={pageMap}
+                  onRefresh={requestRefresh}
+                  isRefreshing={refreshStatus.isLoading}
+                  isUpdating={isUpdating}
+                  refreshDisabled={refreshStatus.isLoading || isUpdating}
+                />
 
-              <p style={{ margin: "0 0 20px 0", padding: 0 }}>
-                {pageMap[page].subtitle}
-              </p>
-              {pageMap[page].component({
-                isLoading,
-                setIsLoading,
-                setToastSetting,
-              })}
+                {(refreshStatus.message ||
+                  (refreshStatus.isStale && refreshStatus.loadedAt)) && (
+                  <MuiAlert
+                    severity={refreshStatus.message ? "error" : "warning"}
+                    sx={{ mb: 2 }}
+                  >
+                    {refreshStatus.message ||
+                      (refreshStatus.isLoading
+                        ? "Stale data. Refreshing..."
+                        : "Stale data. Refresh to continue.")}
+                  </MuiAlert>
+                )}
+
+                <p style={{ margin: "0 0 20px 0", padding: 0 }}>
+                  {pageMap[page].subtitle}
+                </p>
+                {pageMap[page].component({
+                  setToastSetting,
+                })}
+              </DataRefreshContext.Provider>
             </div>
           </>
         )}
